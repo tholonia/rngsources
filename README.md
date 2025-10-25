@@ -593,4 +593,4 @@ For comprehensive information about all quantum data sources, including detailed
 
 ## Contact
 
-[Your contact information]
+jeff.milton@gmail.com

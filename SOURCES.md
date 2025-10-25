@@ -376,7 +376,7 @@ The quantum implementation:
 | **ANU** | Live API | Vacuum fluctuations | uint16 | ~100ms | Real-time quantum randomness |
 | **LfD** | Live API | Photon detection | bytes (hex) | ~100ms | Cryptographic applications |
 | **CURBy** | Local file | SHA-3 extraction | uint32/uint8 | <1ms | High-speed, offline |
-| **GCP Eggs** | Live API | Distributed QRNGs | Statistics | ~5s | Global consciousness research |
+| **GCP Eggs** | Latest data | Distributed QRNGs | Statistics | ~5s | Global consciousness research |
 | **I Ching** | Derivation | LfD bytes | Hexagrams | derived | Divination, philosophy |
 
 ---
