@@ -4,10 +4,11 @@ A unified, self-describing API for multi-source quantum random number generation
 
 ## Features
 
-- **Multi-source quantum randomness**: ANU QRNG, LfD QRNG, CURBy local data
+- **Multi-source quantum randomness**: ANU QRNG, LfD QRNG, CURBy local data, Global Consciousness Project (GCP) Egg network
 - **Unified schema**: Versioned, self-describing format with full metadata
 - **Integrity checks**: SHA-256 checksums for all data sources
 - **I Ching derivation**: Traditional yarrow stick method applied to quantum entropy
+- **GCP Egg data**: Real-time quantum randomness from global network of Random Event Generators
 - **Automatic fallback**: Quantum-seeded PRNG if primary sources fail
 - **Full provenance**: Transformation history and technique descriptions
 - **Type safety**: Pydantic models with strict validation
@@ -21,6 +22,15 @@ A unified, self-describing API for multi-source quantum random number generation
 pip install -r requirements.txt
 ```
 
+**Optional: For GCP Egg Data Integration**
+
+```bash
+pip install playwright
+playwright install chromium
+```
+
+This is only required if you want to use the `--egg` flag to fetch Global Consciousness Project data.
+
 ### Default Values
 
 The API and CLI use these default parameters:
@@ -33,6 +43,7 @@ The API and CLI use these default parameters:
 | `curby_count` | `1` | 1-10 | Number of CURBy values to fetch |
 | `curby_path` | `"random_packed_u32be.csv"` | Any valid path | Path to CURBy CSV file |
 | `include_iching` | `true` | `true`, `false` | Include I Ching hexagram derivation |
+| `include_egg` | `false` | `true`, `false` | Include Global Consciousness Project egg data |
 
 **Example using all defaults:**
 ```bash
@@ -52,6 +63,9 @@ python rng_unified.py --pretty
 # Custom parameters
 python rng_unified.py --anu-len 10 --lfd-bytes 128 --curby u32 --pretty
 
+# Include GCP Egg data
+python rng_unified.py --egg --pretty
+
 # Generate JSON Schema
 python rng_unified.py --schema
 
@@ -60,6 +74,9 @@ python rng_unified.py --no-iching
 
 # Save to file
 python rng_unified.py --pretty --output random_data.json
+
+# All features enabled
+python rng_unified.py --egg --pretty --output full_data.json
 ```
 
 ### API Server
@@ -87,10 +104,15 @@ Main endpoint for fetching unified quantum random data.
 - `curby_count` (int, default=1): Number of CURBy values
 - `curby_path` (str): Path to CURBy CSV file
 - `include_iching` (bool, default=true): Include I Ching derivation
+- `include_egg` (bool, default=false): Include Global Consciousness Project egg data
 
-**Example:**
+**Examples:**
 ```bash
+# Standard request
 curl "http://localhost:8000/random/unified?anu_len=6&lfd_bytes=64&curby_kind=u32&include_iching=true" | jq
+
+# Include GCP Egg data
+curl "http://localhost:8000/random/unified?include_egg=true" | jq
 ```
 
 #### POST /random/legacy
@@ -190,11 +212,12 @@ Standardized descriptor for each quantum source.
 | `quantum_photonics_IDQ` | LfD | Uses ID Quantique hardware (quantum photonic entropy source) |
 | `quantum_photonics_IDQ_seeded` | ANU fallback | Mersenne Twister seeded with quantum photonic entropy |
 | `sha3_extracted_quantum` | CURBy | Quantum entropy post-processed with SHA3-256 block hashing |
+| `distributed_quantum_network` | GCP Eggs | Global network of quantum Random Event Generators |
 | `yarrow_stick` | I Ching | Traditional divination applied to quantum entropy |
 
 ### Derived Block
 
-Contains derived structures like I Ching hexagrams.
+Contains derived structures like I Ching hexagrams and GCP egg data.
 
 ```json
 "derived": {
@@ -210,11 +233,30 @@ Contains derived structures like I Ching hexagrams.
     "resulting_hexagram_bin2dec": 50,
     "has_changing_lines": true,
     "changing_line_positions": [4]
+  },
+  "egg": {
+    "source": "global-mind.org",
+    "persec": {
+      "1761338700": [96, 107, 100, 92, 110, 101, 103, 98, 95, 111],
+      "1761338701": [101, 94, 102, 95, 104, 98, 107, 100, 103, 99]
+    },
+    "persecz": {
+      "1761338700": [-0.566, 0.990, 0.0, -1.131, 1.414, 0.141, 0.424, -0.283, -0.707, 1.556],
+      "1761338701": [0.141, -0.849, 0.283, -0.707, 0.566, -0.283, 0.990, 0.0, 0.424, -0.141]
+    },
+    "perseczcs": {
+      "1761338700": [-0.566, -0.142, -0.142, -1.273, 0.141, 0.282, 0.706, 0.423, -0.284, 1.272],
+      "1761338701": [0.141, -0.708, -0.425, -1.132, -0.566, -0.849, 0.141, 0.141, 0.565, 0.424]
+    },
+    "stouffer": {
+      "1761338760": {"StoufferZ": -1.431, "CSZ2-1": 1.048},
+      "1761338761": {"StoufferZ": 0.268, "CSZ2-1": 0.120}
+    }
   }
 }
 ```
 
-**Fields:**
+**I Ching Fields:**
 - `technique`: Divination method (yarrow_stick)
 - `derived_from`: Source data reference
 - `lines`: Six line values (6=Old Yin, 7=Young Yang, 8=Young Yin, 9=Old Yang)
@@ -227,13 +269,22 @@ Contains derived structures like I Ching hexagrams.
 - `has_changing_lines`: Whether any lines are changing (6 or 9)
 - `changing_line_positions`: Array of changing line positions (1-6)
 
+**GCP Egg Fields:**
+- `source`: Data source URL (global-mind.org)
+- `persec`: Per-second raw bit counts from each egg (dict keyed by Unix timestamp, values are lists of 10 integers)
+- `persecz`: Per-second Z-scores showing deviations from expected randomness (dict keyed by Unix timestamp, values are lists of 10 floats)
+- `perseczcs`: Cumulative sum of Z-scores over time (dict keyed by Unix timestamp, values are lists of 10 floats)
+- `stouffer`: Combined network statistics (dict keyed by Unix timestamp)
+  - `StoufferZ`: Meta-analysis statistic combining all eggs
+  - `CSZ2-1`: Cumulative Stouffer Z squared minus one
+
 ### Metadata Block
 
 Response metadata and quality checks.
 
 ```json
 "metadata": {
-  "description": "Combined quantum randomness with I Ching derivation",
+  "description": "Combined quantum randomness with I Ching derivation and Global Consciousness Project egg data (https://global-mind.org/realtime/)",
   "checks": {
     "byte_len_total": 74,
     "monobit_ratio": 0.5108695652173914
@@ -242,9 +293,87 @@ Response metadata and quality checks.
 ```
 
 **Fields:**
-- `description`: Human-readable description
+- `description`: Human-readable description (includes GCP info when egg data is included)
 - `checks.byte_len_total`: Total bytes across all sources
 - `checks.monobit_ratio`: Ratio of 1-bits to total bits (quick sanity check, should be ~0.5)
+
+## Global Consciousness Project (GCP) Integration
+
+### About GCP
+
+The Global Consciousness Project is an international collaboration studying whether human consciousness can be detected by physical systems. Started in 1998, the project maintains a worldwide network of quantum Random Event Generators (REGs), nicknamed "Eggs," that continuously generate random data.
+
+**Website:** https://global-mind.org/realtime/
+
+### How It Works
+
+- **Network:** ~50-70 quantum random event generators distributed globally
+- **Continuous Operation:** 24/7 data collection since 1998
+- **Update Frequency:** Real-time data with minute-by-minute updates
+- **Data Source:** Each Egg generates ~200 random bits per second from quantum processes
+
+### Data Structure
+
+The API fetches four types of statistical data:
+
+1. **persec** (Per-Second Raw Data)
+   - Raw bit counts from each Egg per second
+   - Expected value: ~100 (from 200 trials expecting 50% ones)
+   - Format: Dict keyed by Unix timestamp, values are lists of integers (one per Egg)
+   - Example: `{1761338700: [96, 107, 100, 92, 110, 101, 103, 98, 95, 111]}`
+
+2. **persecz** (Per-Second Z-Scores)
+   - Standard deviations from expected randomness
+   - Shows how far each second deviates from pure randomness
+   - Typically ranges from -3 to +3
+   - Positive = more ones; Negative = fewer ones
+   - Format: Dict keyed by Unix timestamp, values are lists of floats
+
+3. **perseczcs** (Cumulative Z-Score Sum)
+   - Running sum of Z-scores over time
+   - Shows long-term trends and persistent deviations
+   - Random walk pattern expected for pure randomness
+   - Format: Dict keyed by Unix timestamp, values are lists of floats
+
+4. **stouffer** (Network-Wide Statistics)
+   - **StoufferZ**: Meta-analysis combining all Eggs into single measure
+   - **CSZ²-1**: Cumulative Stouffer Z squared minus one
+   - Shows whether the entire network is deviating from randomness
+   - Format: Dict keyed by Unix timestamp with {StoufferZ, CSZ2-1} values
+
+### Research Applications
+
+- Consciousness studies and global coherence research
+- Time-stamped quantum randomness for correlational studies
+- Distributed quantum system analysis
+- High-quality entropy source with global provenance
+- Long-term quantum randomness data (20+ years of history)
+
+### Technical Requirements
+
+To use GCP egg data integration:
+
+```bash
+# Install Playwright for web scraping
+pip install playwright
+playwright install chromium
+
+# Use the --egg flag
+python rng_unified.py --egg --pretty
+```
+
+The integration automatically:
+- Downloads latest data from global-mind.org
+- Extracts CSV data from ZIP archive
+- Processes specific line ranges (30-91, 96-155, 160-219, 223-283)
+- Returns structured data in unified schema
+
+### Data Lineage
+
+- **Lines 30-91**: Per-second raw trial data (persec)
+- **Lines 96-155**: Per-second Z-scores (persecz)
+- **Lines 160-219**: Cumulative Z-scores (perseczcs)
+- **Lines 223-283**: Stouffer combined statistics (stouffer)
 
 ## Example Response
 
@@ -388,11 +517,12 @@ print(unified.model_dump_json(indent=2))
 6. **rng_unified.py**: CLI tool
 7. **backward_compat.py**: Legacy format translator
 8. **test_unified.py**: Test suite
+9. **../egg/getdata.py**: GCP egg data fetcher and processor
 
 ### Data Flow
 
 ```
-CLI/API Request
+CLI/API Request (with optional --egg flag)
     ↓
 Assembler
     ↓
@@ -405,8 +535,14 @@ Assembler
 ├─→ Fetch CURBy (Source 3)            
 │   (seeded with ANU[0])              
 │                                     
-└─→ Derive I Ching ←──────────────────┘
-    (using LfD[12..17])
+├─→ Derive I Ching ←──────────────────┘
+│   (using LfD[12..17])
+│
+└─→ Fetch GCP Egg Data (optional)
+    ├─→ Download from global-mind.org
+    ├─→ Extract ZIP archive
+    ├─→ Process CSV (lines 30-283)
+    └─→ Structure: persec, persecz, perseczcs, stouffer
     ↓
 Unified Response
 ```
@@ -443,6 +579,14 @@ Type checking:
 mypy *.py --strict
 ```
 
+## Additional Documentation
+
+For comprehensive information about all quantum data sources, including detailed descriptions of how each source works, the organizations behind them, and their scientific foundations, see:
+
+- **[SOURCES.md](SOURCES.md)**: Detailed documentation of all quantum RNG sources (ANU, LfD, CURBy, GCP Eggs, I Ching)
+- **[QUICKSTART.md](QUICKSTART.md)**: Quick start guide and examples
+- **[INTEGRATION_SUMMARY.md](../INTEGRATION_SUMMARY.md)**: Project integration summary
+
 ## License
 
 [Specify your license here]
@@ -450,5 +594,3 @@ mypy *.py --strict
 ## Contact
 
 [Your contact information]
-
-# rngsources

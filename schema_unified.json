@@ -1,0 +1,440 @@
+{
+  "$defs": {
+    "Derived": {
+      "description": "Derived data structures.",
+      "properties": {
+        "iching": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IChingDerived"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "I Ching hexagram data"
+        }
+      },
+      "title": "Derived",
+      "type": "object"
+    },
+    "IChingDerived": {
+      "description": "I Ching hexagram derivation.",
+      "properties": {
+        "technique": {
+          "const": "yarrow_stick",
+          "default": "yarrow_stick",
+          "description": "Divination method",
+          "title": "Technique",
+          "type": "string"
+        },
+        "derived_from": {
+          "description": "Source data reference",
+          "title": "Derived From",
+          "type": "string"
+        },
+        "lines": {
+          "description": "Six line values (6-9)",
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 6,
+          "minItems": 6,
+          "title": "Lines",
+          "type": "array"
+        },
+        "original_hexagram": {
+          "description": "Original hexagram number",
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Original Hexagram",
+          "type": "integer"
+        },
+        "original_hexagram_bin": {
+          "description": "Binary representation",
+          "maxLength": 6,
+          "minLength": 6,
+          "title": "Original Hexagram Bin",
+          "type": "string"
+        },
+        "original_hexagram_bin2dec": {
+          "description": "Decimal value of binary representation",
+          "maximum": 63,
+          "minimum": 0,
+          "title": "Original Hexagram Bin2Dec",
+          "type": "integer"
+        },
+        "resulting_hexagram": {
+          "description": "Resulting hexagram number",
+          "maximum": 64,
+          "minimum": 1,
+          "title": "Resulting Hexagram",
+          "type": "integer"
+        },
+        "resulting_hexagram_bin": {
+          "description": "Binary representation",
+          "maxLength": 6,
+          "minLength": 6,
+          "title": "Resulting Hexagram Bin",
+          "type": "string"
+        },
+        "resulting_hexagram_bin2dec": {
+          "description": "Decimal value of binary representation",
+          "maximum": 63,
+          "minimum": 0,
+          "title": "Resulting Hexagram Bin2Dec",
+          "type": "integer"
+        },
+        "has_changing_lines": {
+          "description": "Whether any lines are changing",
+          "title": "Has Changing Lines",
+          "type": "boolean"
+        },
+        "changing_line_positions": {
+          "description": "Positions of changing lines (1-6)",
+          "items": {
+            "type": "integer"
+          },
+          "title": "Changing Line Positions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "derived_from",
+        "lines",
+        "original_hexagram",
+        "original_hexagram_bin",
+        "original_hexagram_bin2dec",
+        "resulting_hexagram",
+        "resulting_hexagram_bin",
+        "resulting_hexagram_bin2dec",
+        "has_changing_lines"
+      ],
+      "title": "IChingDerived",
+      "type": "object"
+    },
+    "Metadata": {
+      "description": "Response metadata.",
+      "properties": {
+        "description": {
+          "description": "Human-readable description",
+          "title": "Description",
+          "type": "string"
+        },
+        "checks": {
+          "$ref": "#/$defs/MetadataChecks",
+          "description": "Quality checks"
+        }
+      },
+      "required": [
+        "description",
+        "checks"
+      ],
+      "title": "Metadata",
+      "type": "object"
+    },
+    "MetadataChecks": {
+      "description": "Quality checks and statistics.",
+      "properties": {
+        "byte_len_total": {
+          "description": "Total bytes across all sources",
+          "minimum": 0,
+          "title": "Byte Len Total",
+          "type": "integer"
+        },
+        "monobit_ratio": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Ratio of 1-bits to total bits (sanity check)",
+          "title": "Monobit Ratio"
+        }
+      },
+      "required": [
+        "byte_len_total"
+      ],
+      "title": "MetadataChecks",
+      "type": "object"
+    },
+    "RequestInfo": {
+      "description": "Request metadata and status.",
+      "properties": {
+        "request_id": {
+          "description": "Unique UUID4 for this request",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "RFC3339 timestamp in UTC",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "success": {
+          "description": "Overall success status",
+          "title": "Success",
+          "type": "boolean"
+        },
+        "latency_ms": {
+          "description": "Total request latency in milliseconds",
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "errors": {
+          "description": "Error messages if any",
+          "items": {
+            "type": "string"
+          },
+          "title": "Errors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "request_id",
+        "timestamp",
+        "success",
+        "latency_ms"
+      ],
+      "title": "RequestInfo",
+      "type": "object"
+    },
+    "Source": {
+      "description": "Standardized source descriptor.",
+      "properties": {
+        "id": {
+          "description": "Short identifier (anu|lfd|curby_local)",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "description": "Human-readable name",
+          "title": "Name",
+          "type": "string"
+        },
+        "endpoint": {
+          "description": "URL or file:// path",
+          "title": "Endpoint",
+          "type": "string"
+        },
+        "method": {
+          "description": "Access method",
+          "enum": [
+            "https-get",
+            "file"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "technique": {
+          "description": "Quantum generation technique",
+          "enum": [
+            "vacuum_fluctuation_optics",
+            "quantum_photonics_IDQ",
+            "quantum_photonics_IDQ_seeded",
+            "sha3_extracted_quantum",
+            "yarrow_stick"
+          ],
+          "title": "Technique",
+          "type": "string"
+        },
+        "format_in": {
+          "description": "Input format type",
+          "enum": [
+            "uint8",
+            "uint16",
+            "uint32",
+            "hex"
+          ],
+          "title": "Format In",
+          "type": "string"
+        },
+        "encoding": {
+          "description": "Encoding method",
+          "enum": [
+            "none",
+            "hex",
+            "base64"
+          ],
+          "title": "Encoding",
+          "type": "string"
+        },
+        "unit_bits": {
+          "description": "Bits per unit",
+          "title": "Unit Bits",
+          "type": "integer"
+        },
+        "count": {
+          "description": "Number of elements or bytes",
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/SourceData",
+          "description": "Data in multiple formats"
+        },
+        "transform": {
+          "description": "Ordered list of transformations applied",
+          "items": {
+            "type": "string"
+          },
+          "title": "Transform",
+          "type": "array"
+        },
+        "sha256_hex": {
+          "description": "SHA-256 checksum",
+          "maxLength": 64,
+          "minLength": 64,
+          "title": "Sha256 Hex",
+          "type": "string"
+        },
+        "fallback_used": {
+          "default": false,
+          "description": "Whether fallback was used",
+          "title": "Fallback Used",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "endpoint",
+        "method",
+        "technique",
+        "format_in",
+        "encoding",
+        "unit_bits",
+        "count",
+        "data",
+        "sha256_hex"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "SourceData": {
+      "description": "Data payload in multiple formats.",
+      "properties": {
+        "uint8": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Array of uint8 values (0-255)",
+          "title": "Uint8"
+        },
+        "uint16": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Array of uint16 values (0-65535)",
+          "title": "Uint16"
+        },
+        "uint32": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Array of uint32 values",
+          "title": "Uint32"
+        },
+        "hex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Hexadecimal string representation",
+          "title": "Hex"
+        },
+        "bytes_b64": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Base64 encoded raw bytes",
+          "title": "Bytes B64"
+        }
+      },
+      "title": "SourceData",
+      "type": "object"
+    }
+  },
+  "description": "Complete unified API response.",
+  "properties": {
+    "version": {
+      "default": "1.0",
+      "description": "Schema version",
+      "title": "Version",
+      "type": "string"
+    },
+    "request": {
+      "$ref": "#/$defs/RequestInfo",
+      "description": "Request metadata"
+    },
+    "sources": {
+      "description": "Data sources",
+      "items": {
+        "$ref": "#/$defs/Source"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "derived": {
+      "$ref": "#/$defs/Derived",
+      "description": "Derived structures"
+    },
+    "metadata": {
+      "$ref": "#/$defs/Metadata",
+      "description": "Response metadata"
+    }
+  },
+  "required": [
+    "request",
+    "metadata"
+  ],
+  "title": "UnifiedResponse",
+  "type": "object"
+}

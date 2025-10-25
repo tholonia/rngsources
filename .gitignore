@@ -1,0 +1,4 @@
+*NOTES.md
+archive/*
+__pycache__
+node_modules
